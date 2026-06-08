@@ -1,0 +1,12 @@
+.env
+.env.*
+*.pem
+keys/
+state/
+node_modules/
+target/
+wasm/
+/tmp/
+*.log
+.DS_Store
+run/
