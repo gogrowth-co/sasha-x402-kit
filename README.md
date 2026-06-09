@@ -32,7 +32,7 @@ Every claim here is a real transaction on the public Casper testnet:
 
 ```
 core/                         chain-agnostic — imports NO chain SDK
-  settlement_adapter.go        SettlementAdapter: Attest / ReadReceipt / Settle
+  settlement_adapter.go        SettlementAdapter: Attest (shipped) — ReadReceipt/Settle = roadmap
   types.go                     chain-neutral types
 adapters/
   casper/                      FLAGSHIP (lands first)
@@ -53,9 +53,12 @@ provable in code, not just claimed.
 [casper-go-sdk](https://github.com/make-software/casper-go-sdk) (headless `TransactionV1` signing) ·
 [`casper-eip-712`](https://github.com/casper-ecosystem/casper-eip-712) (typed-data) ·
 [`make-software/casper-x402`](https://github.com/make-software/casper-x402) facilitator (x402 infra) ·
-CSPR.cloud public testnet RPC. The contract derives from the
-[`odradev/casper-x402-poc`](https://github.com/odradev/casper-x402-poc) CEP-18 (CC-attributed); all
-agent/adapter code is original to this repo.
+CSPR.cloud public testnet RPC. The `AgentAttest` contract is **clean-room original**; the CEP-18 used
+for x402 settlement and the facilitator come from the **Apache-2.0** projects
+[`odradev/casper-x402-poc`](https://github.com/odradev/casper-x402-poc) and
+[`make-software/casper-x402`](https://github.com/make-software/casper-x402), used as
+dependencies/infra (not vendored). Full attribution + originality statement:
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ## Quick start
 
@@ -105,4 +108,5 @@ extends to any chain; the EVM proof adapter (Base Sepolia) is the next milestone
 
 ## License
 
-Apache-2.0.
+Apache-2.0 (see [`LICENSE`](LICENSE)). Third-party attribution + the originality statement are in
+[`NOTICE`](NOTICE) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

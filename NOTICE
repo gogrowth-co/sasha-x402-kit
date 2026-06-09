@@ -1,0 +1,9 @@
+sasha-x402-kit
+Copyright 2026 Sasha (sasha-x402-kit contributors)
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It depends on and/or interoperates with third-party software (Apache-2.0 unless noted),
+including x402-foundation/x402, casper-ecosystem/casper-eip-712, make-software/casper-go-sdk,
+make-software/casper-x402, odradev/odra, and odradev/casper-x402-poc. See THIRD_PARTY_NOTICES.md
+for the full list, licenses, and a statement of which components are original vs. derived.

@@ -41,9 +41,11 @@ func main() {
 	summary := envOr("ATTEST_SUMMARY", "WETH/USDC LP open")
 	metric := uint64(1850)
 	if m := os.Getenv("ATTEST_METRIC"); m != "" {
-		if v, perr := strconv.ParseUint(m, 10, 64); perr == nil {
-			metric = v
+		v, perr := strconv.ParseUint(m, 10, 64)
+		if perr != nil {
+			fatal(fmt.Errorf("invalid ATTEST_METRIC %q: %w", m, perr))
 		}
+		metric = v
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Second)

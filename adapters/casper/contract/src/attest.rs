@@ -46,7 +46,8 @@ impl AgentAttest {
                 ts: self.env().get_block_time(),
             },
         );
-        self.count.set(id + 1);
+        // checked increment so the append-only id space can never silently wrap (reverts at u32::MAX).
+        self.count.set(id.checked_add(1).unwrap_or_revert(&self.env()));
         id
     }
 

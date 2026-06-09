@@ -14,6 +14,8 @@ type AttestResult struct {
 	ID     uint32
 }
 
+// --- Roadmap types (EXPOSE / Phase 2): not yet on the SettlementAdapter interface ---
+
 // Receipt is a chain-neutral view of a previously recorded attestation.
 type Receipt struct {
 	Author  string

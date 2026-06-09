@@ -1,11 +1,10 @@
-// Package casper implements core.SettlementAdapter against the Casper Network using the
-// casper-go-sdk (the spike-validated headless signing path). Attest calls the AgentAttest
-// Odra contract's `attest` entrypoint as a TransactionV1; the x402 settle leg lands in Task 1.4.
+// Package casper implements core.SettlementAdapter (Attest) against the Casper Network using the
+// casper-go-sdk (the spike-validated headless signing path): Attest calls the AgentAttest Odra
+// contract's `attest` entrypoint as a signed TransactionV1.
 package casper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -17,9 +16,6 @@ import (
 
 	"github.com/SashaCoin95/sasha-x402-kit/core"
 )
-
-// errNotImplemented marks SPINE methods completed in a later task.
-var errNotImplemented = errors.New("not implemented in this task")
 
 // Config wires a CasperAdapter to a network + the deployed AgentAttest contract.
 type Config struct {
@@ -127,24 +123,32 @@ func (c *CasperAdapter) Attest(ctx context.Context, a core.Attestation) (core.At
 	return core.AttestResult{TxHash: txHash}, nil
 }
 
-// waitForExecution polls until the transaction is executed (or reverts).
+// waitForExecution polls until the transaction is executed (or reverts). RPC lookups before the
+// tx is gossiped/executed are transient ("not found yet"); we keep polling but remember the last
+// error so a timeout reports why we never saw execution info instead of a bare deadline.
 func (c *CasperAdapter) waitForExecution(ctx context.Context, txHash string) error {
 	client := c.rpc()
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	deadline := time.NewTimer(120 * time.Second)
 	defer deadline.Stop()
+	var lastErr error
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-deadline.C:
-			return fmt.Errorf("timeout waiting for %s", txHash)
+			if lastErr != nil {
+				return fmt.Errorf("timeout waiting for %s (last rpc error: %w)", txHash, lastErr)
+			}
+			return fmt.Errorf("timeout waiting for %s (no execution info)", txHash)
 		case <-ticker.C:
 			res, err := client.GetTransactionByTransactionHash(ctx, txHash)
 			if err != nil {
+				lastErr = err // typically "transaction not found yet"; surfaced only on timeout
 				continue
 			}
+			lastErr = nil
 			if res.ExecutionInfo == nil || res.ExecutionInfo.BlockHeight == 0 ||
 				res.ExecutionInfo.ExecutionResult == nil {
 				continue
@@ -155,14 +159,4 @@ func (c *CasperAdapter) waitForExecution(ctx context.Context, txHash string) err
 			return nil
 		}
 	}
-}
-
-// ReadReceipt — completed in Task 1.4 (query the contract's `get` view / named keys).
-func (c *CasperAdapter) ReadReceipt(_ context.Context, _ uint32) (core.Receipt, error) {
-	return core.Receipt{}, errNotImplemented
-}
-
-// Settle — the x402 settle leg, completed in Task 1.4 (drives the casper-x402 facilitator).
-func (c *CasperAdapter) Settle(_ context.Context, _ core.PaymentReq) (core.SettleResult, error) {
-	return core.SettleResult{}, errNotImplemented
 }

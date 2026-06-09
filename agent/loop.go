@@ -46,7 +46,9 @@ func Run(cfg Config) error {
 	scheme := casper.NewPayScheme(key)
 	client := x402.Newx402Client()
 	client.Register(x402.Network(cfg.Network), scheme)
-	httpClient := x402http.WrapHTTPClientWithPayment(http.DefaultClient, x402http.Newx402HTTPClient(client))
+	// Bounded client so the PAY leg (402 -> sign -> retry -> settle) can't hang indefinitely.
+	payHTTP := &http.Client{Timeout: 90 * time.Second}
+	httpClient := x402http.WrapHTTPClientWithPayment(payHTTP, x402http.Newx402HTTPClient(client))
 
 	fmt.Printf("[PAY] GET %s (x402)\n", cfg.SignalURL)
 	resp, err := httpClient.Get(cfg.SignalURL)
@@ -72,14 +74,22 @@ func Run(cfg Config) error {
 	}
 	fmt.Printf("[PAY] paid; settle tx=%s\n", settleTx)
 
-	// --- ACT/synthesize: derive a decision from the purchased signal ---
+	// --- ACT/synthesize: derive a decision from the purchased signal (strictly validated) ---
 	var signal map[string]interface{}
-	_ = json.Unmarshal(body, &signal)
-	summary := fmt.Sprintf("bought x402 signal; %v=%v", signal["city"], signal["weather"])
-	var metric uint64
-	if t, ok := signal["temperature"].(float64); ok {
-		metric = uint64(t)
+	if err := json.Unmarshal(body, &signal); err != nil {
+		return fmt.Errorf("act: paid response is not JSON: %w", err)
 	}
+	city, _ := signal["city"].(string)
+	weather, _ := signal["weather"].(string)
+	temp, tempOK := signal["temperature"].(float64)
+	if city == "" || weather == "" || !tempOK {
+		return fmt.Errorf("act: signal missing required fields city/weather/temperature: %s", string(body))
+	}
+	if temp < 0 {
+		return fmt.Errorf("act: negative metric %v cannot be encoded as uint64", temp)
+	}
+	summary := fmt.Sprintf("bought x402 signal; %s=%s", city, weather)
+	metric := uint64(temp)
 	fmt.Printf("[ACT] decision: %q metric=%d\n", summary, metric)
 
 	// --- ATTEST: record the decision on-chain ---
