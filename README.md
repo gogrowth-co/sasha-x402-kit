@@ -2,7 +2,7 @@
 
 # sasha-x402-kit
 
-[![ci](https://github.com/gmangabeira/sasha-x402-kit/actions/workflows/secret-scan.yml/badge.svg)](https://github.com/gmangabeira/sasha-x402-kit/actions/workflows/secret-scan.yml) ![License](https://img.shields.io/badge/license-Apache--2.0-blue) ![Casper](https://img.shields.io/badge/network-casper--test-red) ![x402](https://img.shields.io/badge/protocol-x402-green)
+[![ci](https://github.com/gogrowth-co/sasha-x402-kit/actions/workflows/secret-scan.yml/badge.svg)](https://github.com/gogrowth-co/sasha-x402-kit/actions/workflows/secret-scan.yml) ![License](https://img.shields.io/badge/license-Apache--2.0-blue) ![Casper](https://img.shields.io/badge/network-casper--test-red) ![x402](https://img.shields.io/badge/protocol-x402-green)
 
 **An autonomous AI agent that makes its real DeFi book verifiable and payable on Casper over the [x402](https://x402.org) payment protocol.**
 
