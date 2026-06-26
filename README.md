@@ -6,7 +6,9 @@
 
 **An autonomous AI agent that makes its real DeFi book verifiable and payable on Casper over the [x402](https://x402.org) payment protocol.**
 
-Most agents claim to run a book. This one attests every decision on-chain so anyone can verify it. Built on a chain-agnostic core with a Casper flagship adapter, the agent runs a four-verb loop that closes the gap between "agent says it did something" and "agent proves it did something." Built for the **Casper Agentic Buildathon 2026**. Testnet only.
+Most DeFi agents claim to run a book. They log "I bought X" and "I earned Y" — to a database they control. That's a diary, not proof.
+
+sasha-x402-kit closes the gap: every decision the agent makes is attested on Casper, not self-reported. Unlike purpose-built hackathon demos, this kit runs a **live production agent** — [Sasha](https://x.com/SashaCoin95) manages a real delta-neutral LP/treasury position on Base and Solana. The Casper attestations log real capital at risk, not synthetic test data. Anyone can verify them. Built on a chain-agnostic core with a Casper flagship adapter. Built for the **Casper Agentic Buildathon 2026**. Testnet only.
 
 ---
 
@@ -29,7 +31,8 @@ Every claim here is a real transaction on the public Casper testnet. Click any h
 |---|---|
 | Attestation contract deploy (`AgentAttest`) | [`577570f2…dba0bfff`](https://testnet.cspr.live/transaction/577570f2f5f486353b8d2e61f7328fca34cd8446053d643ebc395344dba0bfff) |
 | Agent loop — PAY (x402 `402→settle`) | [`b419bbcb…13cc5f2b`](https://testnet.cspr.live/transaction/b419bbcbcbefaa6da97eb4e5251461c691ba436f8f6921a316ea82c213cc5f2b) |
-| Agent loop — ATTEST (decision on-chain) | [`1f063cc2…dec62f6893`](https://testnet.cspr.live/transaction/1f063cc2d3567079cfac9075c3120d9b15deddcdec2a71eb75fc6fdec62f6893) |
+| Agent loop — ATTEST cycle 1 (Jun 8) | [`1f063cc2…dec62f6893`](https://testnet.cspr.live/transaction/1f063cc2d3567079cfac9075c3120d9b15deddcdec2a71eb75fc6fdec62f6893) |
+| Agent loop — ATTEST cycle 2 (Jun 26) | [`f6d8309f…1243c90`](https://testnet.cspr.live/transaction/f6d8309f5c7f943a7814473bd0e18c2464cdf1614129ba7b7a0db92b31243c90) |
 
 `AgentAttest` package hash: `7b4bb374af24ee46a067f4d41f5cba61b097ba613825617e81a57d7673132262`
 
@@ -39,9 +42,9 @@ Every claim here is a real transaction on the public Casper testnet. Click any h
 
 The field is full of "resell-data-over-x402" agents. This one is different on two dimensions.
 
-**A real position.** The agent behind this kit, [Sasha](https://x.com/SashaCoin95), runs a live delta-neutral LP/treasury book on Base and Solana and posts it publicly. That means she can attest a book because she actually runs one.
+**A real position, not a demo.** The agent behind this kit, [Sasha](https://x.com/SashaCoin95), runs a live delta-neutral LP/treasury book on Base and Solana and posts it publicly. She has a real book to attest because she actually runs one — not because the hackathon required a demo transaction. The Jun 26 attestation above was fired mid-sprint against a live position. The contract has been running continuously since June 8.
 
-**Verifiable on-chain identity.** Every decision cycle writes an attestation to `AgentAttest` on Casper. The chain doesn't trust the agent's self-report. It stores a proof. That's a different category than agents that log to a database they control.
+**Verifiable on-chain identity.** Every decision cycle writes an attestation to `AgentAttest` on Casper. The chain doesn't trust the agent's self-report. It stores a proof. That's a different category than agents that log to a database they control. Any third party can call the contract and audit every decision Sasha has ever attested — no trust required.
 
 ---
 
