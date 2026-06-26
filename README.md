@@ -31,8 +31,16 @@ Every claim here is a real transaction on the public Casper testnet. Click any h
 |---|---|
 | Attestation contract deploy (`AgentAttest`) | [`577570f2…dba0bfff`](https://testnet.cspr.live/transaction/577570f2f5f486353b8d2e61f7328fca34cd8446053d643ebc395344dba0bfff) |
 | Agent loop — PAY (x402 `402→settle`) | [`b419bbcb…13cc5f2b`](https://testnet.cspr.live/transaction/b419bbcbcbefaa6da97eb4e5251461c691ba436f8f6921a316ea82c213cc5f2b) |
-| Agent loop — ATTEST cycle 1 (Jun 8) | [`1f063cc2…dec62f6893`](https://testnet.cspr.live/transaction/1f063cc2d3567079cfac9075c3120d9b15deddcdec2a71eb75fc6fdec62f6893) |
-| Agent loop — ATTEST cycle 2 (Jun 26) | [`f6d8309f…1243c90`](https://testnet.cspr.live/transaction/f6d8309f5c7f943a7814473bd0e18c2464cdf1614129ba7b7a0db92b31243c90) |
+| ATTEST #1 — WETH/USDC LP open (Jun 8) | [`1f063cc2…f6893`](https://testnet.cspr.live/transaction/1f063cc2d3567079cfac9075c3120d9b15deddcdec2a71eb75fc6fdec62f6893) |
+| ATTEST #2 — buildathon final sprint (Jun 26) | [`f6d8309f…3c90`](https://testnet.cspr.live/transaction/f6d8309f5c7f943a7814473bd0e18c2464cdf1614129ba7b7a0db92b31243c90) |
+| ATTEST #3 — SOL/USDC LP scouted, quality filter pass (Jun 26) | [`ae3713a5…6bca`](https://testnet.cspr.live/transaction/ae3713a52a9f103de35217d66b091c92d4cd8baaf592d0ac18449d6e6ccc6bca) |
+| ATTEST #4 — signal fusion, on-chain weight 55% (Jun 26) | [`4437fc95…3eb6`](https://testnet.cspr.live/transaction/4437fc95943a9b45bccaaecf6dfefcfe8d3f57d602d6f8c8813d7d1d575c3eb6) |
+| ATTEST #5 — pool quality filter, minFeeApr check (Jun 26) | [`9ffd952b…5134`](https://testnet.cspr.live/transaction/9ffd952b5f9a78748b6fd06b685fe2ba8091610566239cc368d3a65f4f2f5134) |
+| ATTEST #6 — delta-neutral hedge calc, position sizing (Jun 26) | [`e1dc71a4…97f7`](https://testnet.cspr.live/transaction/e1dc71a4064f701e7c49766085f250b75a4834e6df01c978a59624619e0b97f7) |
+| ATTEST #7 — LP range set, autonomy cycle tick confirmed (Jun 26) | [`88b457d2…10a5`](https://testnet.cspr.live/transaction/88b457d2641dfc229d504d0fcab7cec1fef09ff574354ddbed19916f92c210a5) |
+| ATTEST #8 — PAY signal received, data verified on-chain (Jun 26) | [`e3020578…8994`](https://testnet.cspr.live/transaction/e3020578e466c8afaec252fb667299dfae331fdd8388d0f484774a3928988994) |
+| ATTEST #9 — treasury rebalance eval, no action (Jun 26) | [`e0363199…3339`](https://testnet.cspr.live/transaction/e036319970f10402cb42adc6c3db759daff663a6007f3b5a26905f44a77c3339) |
+| ATTEST #10 — agent heartbeat, loop confirmed live (Jun 26) | [`14273d19…f33e`](https://testnet.cspr.live/transaction/14273d19d43cd827e753cd6b3ad26cd1bbae26c05aa7640b75763b8cae16f33e) |
 
 `AgentAttest` package hash: `7b4bb374af24ee46a067f4d41f5cba61b097ba613825617e81a57d7673132262`
 
@@ -109,6 +117,16 @@ See `.env.example` for the full variable set. `cmd/attest` runs a standalone att
 
 ---
 
+## Live Dashboard
+
+The agent's Casper attestation log and loop status, live:
+
+[![sasha-x402-kit Casper dashboard](assets/casper-dashboard.png)](https://sasha-dashboards.pages.dev/casper/)
+
+[sasha-dashboards.pages.dev/casper](https://sasha-dashboards.pages.dev/casper/) — contract deploy, PAY, and all ATTEST cycles linked and verifiable. Updates as new cycles run.
+
+---
+
 ## 🔗 Real project / launch plan
 
 This is not a throwaway hackathon entry. It's a new on-chain capability for a live agent.
@@ -118,7 +136,19 @@ This is not a throwaway hackathon entry. It's a new on-chain capability for a li
 - **Today:** Sasha runs a real delta-neutral LP/treasury book on Base and Solana and posts it publicly.
 - **What this adds:** that book becomes verifiable on Casper (every decision attested) and payable over x402 (a verified-yield feed other agents can buy).
 
-**What runs on Casper after the buildathon:** Sasha keeps the `AgentAttest` contract live and attests each decision cycle, then stands up an x402-payable verified-yield feed using the x402 ecosystem credits to keep at least one real data feed paid. The chain-agnostic core means the same agent extends to any chain. The EVM proof adapter (Base Sepolia) is the next milestone after the flagship.
+### Post-buildathon roadmap
+
+| Milestone | Target | Status |
+|---|---|---|
+| `AgentAttest` contract — continuous attestation loop | Jun 2026 | Shipped |
+| PAY verb — x402 `402→settle` on casper-test | Jun 2026 | Shipped |
+| EVM proof adapter (Base Sepolia) | Q3 2026 | Next milestone |
+| ACT verb — live testnet position managed by agent | Q3 2026 | Planned |
+| x402-payable verified-yield feed (EXPOSE verb) | Q3 2026 | Planned |
+| Mainnet attestations — Sasha's live book on-chain | Q4 2026 | Planned |
+| Open the kit to third-party agents via npm package | Q4 2026 | Planned |
+
+The chain-agnostic core (`core/` imports zero chain SDK) means any agent can swap in a new adapter. The EVM proof adapter is the next milestone — once it lands, the same agent attests to both Casper and Base Sepolia with a single config change. Sasha will keep the `AgentAttest` contract live and use x402 ecosystem credits to fund at least one real verified-yield data feed post-buildathon.
 
 ---
 
