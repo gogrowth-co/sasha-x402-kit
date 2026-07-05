@@ -11,3 +11,6 @@ wasm/
 *.log
 .DS_Store
 run/
+.memsearch/
+/demo/
+/assets/logo-480.jpg
