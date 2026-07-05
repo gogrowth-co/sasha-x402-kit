@@ -27,8 +27,9 @@ All code in this repository was written new for the Casper Agentic Buildathon 20
 - `adapters/casper/contract/src/attest.rs` — the **`AgentAttest`** contract is **clean-room original**:
   a minimal append-only attestation log (`attest(summary, metric) -> id`, `count`, `get`). It is not a
   port of the `casper-x402-poc` CEP-18; it shares no token/transfer logic.
-- `adapters/casper/x402_scheme.go`, `adapters/casper/casper_adapter.go`, `agent/loop.go`, `core/*`,
-  `cmd/*` — original Go, written against the public libraries above. Functional similarity to the
-  reference x402 scheme is inherent to implementing the same open protocol, not copied code.
+- `adapters/casper/x402_scheme.go`, `adapters/casper/x402_server_scheme.go`,
+  `adapters/casper/casper_adapter.go`, `agent/loop.go`, `core/*`, `cmd/*` — original Go, written
+  against the public libraries above. Functional similarity to the reference x402 client/server
+  schemes is inherent to implementing the same open protocol, not copied code.
 
 If any upstream ships a `NOTICE` file, its attribution text is incorporated here by reference.

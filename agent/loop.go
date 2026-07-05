@@ -75,21 +75,23 @@ func Run(cfg Config) error {
 	fmt.Printf("[PAY] paid; settle tx=%s\n", settleTx)
 
 	// --- ACT/synthesize: derive a decision from the purchased signal (strictly validated) ---
+	// The signal is Sasha's own LP risk packet (schema sasha.risk_packet.v1) — she pays her
+	// own x402 endpoint for the packet, then attests the verdict it returned.
 	var signal map[string]interface{}
 	if err := json.Unmarshal(body, &signal); err != nil {
 		return fmt.Errorf("act: paid response is not JSON: %w", err)
 	}
-	city, _ := signal["city"].(string)
-	weather, _ := signal["weather"].(string)
-	temp, tempOK := signal["temperature"].(float64)
-	if city == "" || weather == "" || !tempOK {
-		return fmt.Errorf("act: signal missing required fields city/weather/temperature: %s", string(body))
+	schema, _ := signal["schema"].(string)
+	verdict, _ := signal["verdict"].(string)
+	score, scoreOK := signal["score"].(float64)
+	if schema == "" || verdict == "" || !scoreOK {
+		return fmt.Errorf("act: signal missing required fields schema/verdict/score: %s", string(body))
 	}
-	if temp < 0 {
-		return fmt.Errorf("act: negative metric %v cannot be encoded as uint64", temp)
+	summary := fmt.Sprintf("bought x402 risk packet (%s); verdict=%s score=%.0f", schema, verdict, score)
+	metric := uint64(0)
+	if score > 0 {
+		metric = uint64(score)
 	}
-	summary := fmt.Sprintf("bought x402 signal; %s=%s", city, weather)
-	metric := uint64(temp)
 	fmt.Printf("[ACT] decision: %q metric=%d\n", summary, metric)
 
 	// --- ATTEST: record the decision on-chain ---

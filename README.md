@@ -16,7 +16,7 @@ sasha-x402-kit closes the gap: every decision the agent makes is attested on Cas
 
 | Verb | What it does | Status |
 |---|---|---|
-| **PAY** | Buys the signals it acts on over x402 (HTTP 402 → sign → settle) | Shipped |
+| **PAY** | Buys the signals it acts on over x402 (HTTP 402 → sign → settle) — as of Jul 5, the signal is Sasha's own LP risk packet (`sasha.risk_packet.v1`), not a placeholder | Shipped |
 | **ACT** | Manages a real testnet position | Roadmap |
 | **ATTEST** | Writes every decision to an on-chain attestation contract | Shipped |
 | **EXPOSE** | Serves its verified yield as an x402-payable feed | Roadmap (needs external payer) |
@@ -41,6 +41,8 @@ Every claim here is a real transaction on the public Casper testnet. Click any h
 | ATTEST #8 — PAY signal received, data verified on-chain (Jun 26) | [`e3020578…8994`](https://testnet.cspr.live/transaction/e3020578e466c8afaec252fb667299dfae331fdd8388d0f484774a3928988994) |
 | ATTEST #9 — treasury rebalance eval, no action (Jun 26) | [`e0363199…3339`](https://testnet.cspr.live/transaction/e036319970f10402cb42adc6c3db759daff663a6007f3b5a26905f44a77c3339) |
 | ATTEST #10 — agent heartbeat, loop confirmed live (Jun 26) | [`14273d19…f33e`](https://testnet.cspr.live/transaction/14273d19d43cd827e753cd6b3ad26cd1bbae26c05aa7640b75763b8cae16f33e) |
+| PAY #2 — first real signal purchase: Sasha's own LP risk packet, not weather (Jul 5) | [`5a9b6314…9021`](https://testnet.cspr.live/transaction/5a9b6314c7a8bc41c0942acfcf2e4be3b96ac3ec06c3c511b811e9a9a9419021) |
+| ATTEST #11 — verdict on that risk packet (`hold`, score 62) (Jul 5) | [`1e69552a…6665`](https://testnet.cspr.live/transaction/1e69552a0ffee57f104ccb2b1972b80d306d9c1a6a4132522011bcaa2c936665) |
 
 `AgentAttest` package hash: `7b4bb374af24ee46a067f4d41f5cba61b097ba613825617e81a57d7673132262`
 
@@ -69,9 +71,10 @@ adapters/
     contract/                  Odra (Rust) AgentAttest contract, clean-room ERC-8004 pattern
     casper_adapter.go          Attest via casper-go-sdk TransactionV1
     x402_scheme.go             original x402 pay-scheme (EIP-712 via casper-eip-712)
+    x402_server_scheme.go      original x402 resource-server pricing scheme (cmd/riskserver)
   evm/                         PROOF adapter (Base Sepolia), proves the seam  [roadmap]
 agent/loop.go                  PAY → ACT → ATTEST → EXPOSE orchestrator
-cmd/{attest,agent}/            runnable entrypoints
+cmd/{attest,agent,riskserver}/ runnable entrypoints — riskserver is the paywalled signal Sasha sells herself
 scripts/secret-scan.sh         pre-commit secret gate (.githooks/pre-commit)
 ```
 
@@ -98,12 +101,18 @@ ODRA_CASPER_LIVENET_CHAIN_NAME=casper-test \
 ODRA_CASPER_LIVENET_SECRET_KEY_PATH=./keys/secret_key.pem \
   cargo run --bin deployer      # -> deploy tx + AgentAttest package hash
 
-# 2. Agent: one PAY -> ACT -> ATTEST cycle
-#    (needs an x402 facilitator + paid endpoint reachable)
+# 2. Resource server: the paywalled endpoint the agent buys its own risk signal from
+#    (needs an x402 facilitator reachable, e.g. make-software/casper-x402 running locally,
+#    and the risk-packet engine from the sasha-coin workspace's croo/ on RISK_PACKET_INTERNAL_URL)
+PAYEE_ADDRESS=<your casper address> \
+X402_ASSET_PACKAGE=<CEP-18 package hash> \
+X402_ASSET_NAME=<token name> \
+  go run ./cmd/riskserver        # -> serves GET /risk-packet on :4021
+
+# 3. Agent: one PAY -> ACT -> ATTEST cycle
 ODRA_CASPER_LIVENET_SECRET_KEY_PATH=./keys/secret_key.pem \
 AGENT_ATTEST_PACKAGE=<package-hash> \
-SIGNAL_URL=<paid x402 endpoint> \
-  go run ./cmd/agent            # -> live settle tx + attest tx
+  go run ./cmd/agent            # -> live settle tx + attest tx (SIGNAL_URL defaults to :4021/risk-packet)
 ```
 
 See `.env.example` for the full variable set. `cmd/attest` runs a standalone attestation without the full agent loop.
@@ -114,6 +123,17 @@ See `.env.example` for the full variable set. `cmd/attest` runs a standalone att
 
 - **Testnet only. No production keys.** `.env`, `*.pem`, `keys/`, and `state/` are gitignored.
 - `scripts/secret-scan.sh` runs as a pre-commit hook (`.githooks/pre-commit`, wired via `git config core.hooksPath .githooks`). It always blocks PEM/env/private-key material and known credential token shapes by name and content. It runs gitleaks additionally when present, and CI re-runs the full-history scan on every push.
+- **No upgrade backdoor — verified on-chain, not just source-implied.** The `AgentAttest` package's `lock_status` is `Locked`: no new contract version can ever be added to it, by any key. Reproduce it yourself:
+  ```bash
+  SRH=$(curl -s https://node.testnet.casper.network/rpc -X POST -H "Content-Type: application/json" \
+    -d '{"jsonrpc":"2.0","id":1,"method":"chain_get_state_root_hash","params":{}}' | jq -r .result.state_root_hash)
+  curl -s https://node.testnet.casper.network/rpc -X POST -H "Content-Type: application/json" -d '{
+    "jsonrpc":"2.0","id":1,"method":"query_global_state",
+    "params":{"state_identifier":{"StateRootHash":"'"$SRH"'"},
+      "key":"hash-7b4bb374af24ee46a067f4d41f5cba61b097ba613825617e81a57d7673132262"}
+  }' | jq '.result.stored_value.ContractPackage | {lock_status, versions, disabled_versions}'
+  ```
+  Verified 2026-07-05: `lock_status: "Locked"`, one version (`contract_version: 1`), zero `disabled_versions`, and the `upgrader_group` has zero group members — no account holds upgrade authority even if the package were unlocked.
 
 ---
 

@@ -2,7 +2,7 @@
 //
 //	ODRA_CASPER_LIVENET_SECRET_KEY_PATH  PEM key (required)
 //	AGENT_ATTEST_PACKAGE                 AgentAttest package hash, 64-hex (required)
-//	SIGNAL_URL                           paywalled x402 endpoint (default demo /weather)
+//	SIGNAL_URL                           paywalled x402 endpoint (default local /risk-packet, see cmd/riskserver)
 //	ODRA_CASPER_LIVENET_NODE_ADDRESS     RPC (default testnet)
 //	ODRA_CASPER_LIVENET_CHAIN_NAME       short chain name (default casper-test)
 //	CAIP2_CHAIN_ID                       CAIP-2 network (default casper:casper-test)
@@ -24,7 +24,7 @@ func main() {
 		ChainName: envOr("ODRA_CASPER_LIVENET_CHAIN_NAME", "casper-test"),
 		AttestPkg: os.Getenv("AGENT_ATTEST_PACKAGE"),
 		Network:   envOr("CAIP2_CHAIN_ID", "casper:casper-test"),
-		SignalURL: envOr("SIGNAL_URL", "http://localhost:4021/weather?city=San%20Francisco"),
+		SignalURL: envOr("SIGNAL_URL", "http://localhost:4021/risk-packet"),
 	}
 	if cfg.KeyPath == "" || cfg.AttestPkg == "" {
 		fmt.Fprintln(os.Stderr, "required: ODRA_CASPER_LIVENET_SECRET_KEY_PATH and AGENT_ATTEST_PACKAGE")
