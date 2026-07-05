@@ -43,8 +43,11 @@ Every claim here is a real transaction on the public Casper testnet. Click any h
 | ATTEST #10 — agent heartbeat, loop confirmed live (Jun 26) | [`14273d19…f33e`](https://testnet.cspr.live/transaction/14273d19d43cd827e753cd6b3ad26cd1bbae26c05aa7640b75763b8cae16f33e) |
 | PAY #2 — first real signal purchase: Sasha's own LP risk packet, not weather (Jul 5) | [`5a9b6314…9021`](https://testnet.cspr.live/transaction/5a9b6314c7a8bc41c0942acfcf2e4be3b96ac3ec06c3c511b811e9a9a9419021) |
 | ATTEST #11 — verdict on that risk packet (`hold`, score 62) (Jul 5) | [`1e69552a…6665`](https://testnet.cspr.live/transaction/1e69552a0ffee57f104ccb2b1972b80d306d9c1a6a4132522011bcaa2c936665) |
+| PAY #3 + ATTEST #12 — first run of the weekly VPS cron, live-verified (Jul 5) | [`0fb2727c…99cd`](https://testnet.cspr.live/transaction/0fb2727cb979d2a5cfe23ac9d0fcb8d480be5203e147357c99cd93d1865a99cd) / [`c8ef07b9…6fd76`](https://testnet.cspr.live/transaction/c8ef07b9ce359faf0ba2509320bebb7f264ed7885a56058db623af89fee6fd76) |
 
 `AgentAttest` package hash: `7b4bb374af24ee46a067f4d41f5cba61b097ba613825617e81a57d7673132262`
+
+**Autonomous track record:** a weekly cron on Sasha's VPS (`0 8 * * 1 UTC`, testnet only) runs the full PAY→ACT→ATTEST cycle with zero human input — spins up the risk-packet feed, the facilitator, and the resource server, executes one cycle, tears everything down. The 12 cycles above started as manual runs (through Jun 26) and are now a growing autonomous series.
 
 ---
 
